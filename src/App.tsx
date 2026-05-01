@@ -1,13 +1,15 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
+import { useEffect } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider, useAuthContext } from "./contexts/AuthContext";
 import ChatbotWidget from "./components/ChatbotWidget";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import SelectRole from "./pages/SelectRole";
 import Listings from "./pages/Listings";
 import ListingDetail from "./pages/ListingDetail";
 import NotFound from "./pages/NotFound";
@@ -30,35 +32,53 @@ import AdminListings from "./pages/admin/AdminListings";
 import AdminEscrows from "./pages/admin/AdminEscrows";
 import AdminVerifications from "./pages/admin/AdminVerifications";
 
+function RoleGuard() {
+  const { user, isAuthenticated } = useAuthContext();
+  const [location, navigate] = useLocation();
+
+  useEffect(() => {
+    const isPublic = ["/", "/login", "/register", "/select-role"].includes(location) || location.startsWith("/listings") || location.startsWith("/terms") || location.startsWith("/privacy") || location.startsWith("/cookies") || location.startsWith("/escrow-agreement");
+    if (isAuthenticated && !user?.roleSelected && !isPublic) {
+      navigate("/select-role");
+    }
+  }, [isAuthenticated, user, location]);
+
+  return null;
+}
+
 function Router() {
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-      <Route path="/listings" component={Listings} />
-      <Route path="/listings/:id" component={ListingDetail} />
-      <Route path="/terms" component={TermsOfService} />
-      <Route path="/privacy" component={PrivacyPolicy} />
-      <Route path="/escrow-agreement" component={EscrowAgreement} />
-      <Route path="/cookies" component={CookiePolicy} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/dashboard/profile" component={Profile} />
-      <Route path="/dashboard/saved" component={SavedListings} />
-      <Route path="/dashboard/bookings" component={MyBookings} />
-      <Route path="/dashboard/notifications" component={Notifications} />
-      <Route path="/dashboard/listings" component={MyListings} />
-      <Route path="/dashboard/listings/new" component={CreateListing} />
-      <Route path="/messages" component={Messages} />
-      <Route path="/messages/:conversationId" component={Messages} />
-      <Route path="/escrow/:bookingId" component={EscrowPage} />
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/listings" component={AdminListings} />
-      <Route path="/admin/escrows" component={AdminEscrows} />
-      <Route path="/admin/verifications" component={AdminVerifications} />
-      <Route component={NotFound} />
-    </Switch>
+    <>
+      <RoleGuard />
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <Route path="/select-role" component={SelectRole} />
+        <Route path="/listings" component={Listings} />
+        <Route path="/listings/:id" component={ListingDetail} />
+        <Route path="/terms" component={TermsOfService} />
+        <Route path="/privacy" component={PrivacyPolicy} />
+        <Route path="/escrow-agreement" component={EscrowAgreement} />
+        <Route path="/cookies" component={CookiePolicy} />
+        <Route path="/dashboard" component={Dashboard} />
+        <Route path="/dashboard/profile" component={Profile} />
+        <Route path="/dashboard/saved" component={SavedListings} />
+        <Route path="/dashboard/bookings" component={MyBookings} />
+        <Route path="/dashboard/notifications" component={Notifications} />
+        <Route path="/dashboard/listings" component={MyListings} />
+        <Route path="/dashboard/listings/new" component={CreateListing} />
+        <Route path="/messages" component={Messages} />
+        <Route path="/messages/:conversationId" component={Messages} />
+        <Route path="/escrow/:bookingId" component={EscrowPage} />
+        <Route path="/admin" component={AdminDashboard} />
+        <Route path="/admin/users" component={AdminUsers} />
+        <Route path="/admin/listings" component={AdminListings} />
+        <Route path="/admin/escrows" component={AdminEscrows} />
+        <Route path="/admin/verifications" component={AdminVerifications} />
+        <Route component={NotFound} />
+      </Switch>
+    </>
   );
 }
 
