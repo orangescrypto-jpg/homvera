@@ -24,7 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function Home() {
   const { isAuthenticated } = useAuth();
