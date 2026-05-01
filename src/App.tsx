@@ -34,9 +34,6 @@ import Messages from "./pages/Messages";
 // Escrow
 import EscrowPage from "./pages/EscrowPage";
 
-// Verification
-import Verification from "./pages/Verification";
-
 // Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -73,9 +70,6 @@ function Router() {
 
       {/* Escrow */}
       <Route path="/escrow/:bookingId" component={EscrowPage} />
-
-      {/* Verification */}
-      <Route path="/verify" component={Verification} />
 
       {/* Admin */}
       <Route path="/admin" component={AdminDashboard} />
