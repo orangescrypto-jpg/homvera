@@ -19,6 +19,10 @@ interface AuthContextType {
   logout: () => void;
 }
 
+const API = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api/auth`
+  : "/api/auth";
+
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -37,31 +41,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("homvera_user", JSON.stringify(u));
   };
 
-  const loginWithEmail = async (email: string, _password: string) => {
+  const loginWithEmail = async (email: string, password: string) => {
     setLoading(true);
     try {
-      // TODO: replace with real API call
-      // const res = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password: _password }) });
-      // const data = await res.json();
-      // if (!res.ok) throw new Error(data.message);
-      // saveUser(data.user);
-      await new Promise(r => setTimeout(r, 800));
-      saveUser({ id: "1", name: email.split("@")[0], email, role: "user", userRole: "buyer" });
+      const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      saveUser(data.user);
+    } catch (error) {
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  const registerWithEmail = async (email: string, _password: string, name: string) => {
+  const registerWithEmail = async (email: string, password: string, name: string) => {
     setLoading(true);
     try {
-      // TODO: replace with real API call
-      // const res = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, password: _password, name }) });
-      // const data = await res.json();
-      // if (!res.ok) throw new Error(data.message);
-      // saveUser(data.user);
-      await new Promise(r => setTimeout(r, 800));
-      saveUser({ id: "1", name, email, role: "user", userRole: "buyer" });
+      const res = await fetch(`${API}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, name }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      saveUser(data.user);
+    } catch (error) {
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -70,12 +80,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginWithGoogle = async () => {
     setLoading(true);
     try {
-      // TODO: replace with real Google OAuth
-      // Option A Firebase:  signInWithPopup(auth, new GoogleAuthProvider())
-      // Option B Supabase:  supabase.auth.signInWithOAuth({ provider: "google" })
-      // Option C Backend:   window.location.href = "/api/auth/google"
-      await new Promise(r => setTimeout(r, 800));
-      saveUser({ id: "g_1", name: "Google User", email: "user@gmail.com", role: "user", userRole: "buyer" });
+      window.location.href = `${API}/google`;
+    } catch (error) {
+      throw error;
     } finally {
       setLoading(false);
     }
