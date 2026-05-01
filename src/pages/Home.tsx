@@ -1,5 +1,6 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -31,8 +32,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
 
-  const featuredListings: any[] = [];
-  const isLoading = false;
+  const { data: featuredListings, isLoading } = trpc.listings.featured.useQuery();
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -130,27 +130,33 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* ── Hero Section ── */}
       <section className="hero-gradient text-white relative overflow-hidden">
+        {/* Background pattern */}
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
             backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)",
             backgroundSize: "40px 40px"
           }} />
         </div>
+
         <div className="container relative py-20 lg:py-32">
           <div className="max-w-3xl mx-auto text-center">
             <Badge className="mb-6 bg-accent/20 text-accent border-accent/30 hover:bg-accent/30">
               <BadgeCheck className="w-3 h-3 mr-1" />
               Nigeria's Most Trusted Property Platform
             </Badge>
+
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-6">
               Find Your Perfect
               <span className="block text-accent">Home in Nigeria</span>
             </h1>
+
             <p className="text-lg md:text-xl text-white/80 mb-10 leading-relaxed max-w-2xl mx-auto">
               Discover verified properties and trusted services across Nigeria. Every transaction protected by Stripe escrow — your money is safe until you're satisfied.
             </p>
+
+            {/* Search Bar */}
             <div className="glass-card rounded-2xl p-2 flex flex-col sm:flex-row gap-2 max-w-2xl mx-auto">
               <select
                 value={searchCategory}
@@ -177,6 +183,8 @@ export default function Home() {
                 Search
               </Button>
             </div>
+
+            {/* Quick links */}
             <div className="flex flex-wrap justify-center gap-3 mt-6">
               {["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano"].map(city => (
                 <button
@@ -191,6 +199,8 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Wave divider */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 60" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path d="M0 60L1440 60L1440 20C1200 60 960 0 720 20C480 40 240 0 0 20L0 60Z" fill="var(--background)" />
@@ -198,7 +208,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats */}
+      {/* ── Stats ── */}
       <section className="py-12 bg-background">
         <div className="container">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -215,19 +225,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* ── Categories ── */}
       <section className="py-16 bg-secondary/30">
         <div className="container">
           <div className="text-center mb-10">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">Browse by Category</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">From luxury apartments to professional services — find exactly what you need.</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">
+              Browse by Category
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              From luxury apartments to professional services — find exactly what you need.
+            </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {categories.map(cat => (
               <button
                 key={cat.label}
                 onClick={() => navigate(`/listings${cat.query}`)}
-                className="group bg-white rounded-2xl p-5 text-center border border-border hover:border-primary hover:shadow-lg transition-all duration-200"
+                className="group bg-white rounded-2xl p-5 text-center border border-border hover:border-primary hover:shadow-lg transition-all duration-200 listing-card-hover"
               >
                 <div className="w-12 h-12 rounded-xl bg-primary/10 group-hover:bg-primary flex items-center justify-center mx-auto mb-3 transition-colors">
                   <cat.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground transition-colors" />
@@ -240,12 +254,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Listings */}
+      {/* ── Featured Listings ── */}
       <section className="py-16 bg-background">
         <div className="container">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">Featured Properties</h2>
+              <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">
+                Featured Properties
+              </h2>
               <p className="text-muted-foreground">Hand-picked premium listings across Nigeria</p>
             </div>
             <Button variant="ghost" onClick={() => navigate("/listings?featured=true")} className="hidden md:flex items-center gap-1 text-primary">
@@ -266,9 +282,9 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          ) : featuredListings.length > 0 ? (
+          ) : featuredListings && featuredListings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredListings.map((listing: any) => (
+              {featuredListings.map(listing => (
                 <ListingCard key={listing.id} listing={listing} />
               ))}
             </div>
@@ -291,16 +307,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features */}
+      {/* ── Features ── */}
       <section className="py-16 bg-secondary/30">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">Why Choose Homvera NG?</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Built from the ground up for the Nigerian market, with the security and features you need.</p>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">
+              Why Choose Homvera NG?
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Built from the ground up for the Nigerian market, with the security and features you need.
+            </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map(feature => (
-              <Card key={feature.title} className="border-border hover:border-primary/30 hover:shadow-md transition-all duration-200">
+              <Card key={feature.title} className="border-border hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
                 <CardContent className="p-6">
                   <div className={`w-12 h-12 rounded-2xl ${feature.bg} flex items-center justify-center mb-4`}>
                     <feature.icon className={`w-6 h-6 ${feature.color}`} />
@@ -314,11 +334,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works */}
+      {/* ── How It Works ── */}
       <section className="py-16 bg-background">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">How It Works</h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">
+              How It Works
+            </h2>
             <p className="text-muted-foreground">Simple, secure, and transparent — every step of the way.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -344,11 +366,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* ── Testimonials ── */}
       <section className="py-16 bg-secondary/30">
         <div className="container">
           <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">Trusted by Thousands</h2>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3">
+              Trusted by Thousands
+            </h2>
             <p className="text-muted-foreground">Real stories from our community across Nigeria.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -377,10 +401,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ── CTA ── */}
       <section className="py-20 hero-gradient text-white">
         <div className="container text-center">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Ready to Find Your Perfect Home?</h2>
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
+            Ready to Find Your Perfect Home?
+          </h2>
           <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
             Join over 45,000 Nigerians who trust Homvera NG for their property needs.
           </p>
@@ -393,14 +419,15 @@ export default function Home() {
               Browse Listings <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
             {!isAuthenticated && (
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 px-8"
-                asChild
-              >
-                <a href={getLoginUrl()}>Create Free Account</a>
-              </Button>
+              <Link href="/register">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/10 px-8"
+                >
+                  Create Free Account
+                </Button>
+              </Link>
             )}
           </div>
         </div>
