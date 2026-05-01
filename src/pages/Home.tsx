@@ -1,11 +1,9 @@
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ListingCard from "@/components/ListingCard";
 import {
   ArrowRight,
   BadgeCheck,
@@ -26,13 +24,10 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 
 export default function Home() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuthContext();
   const [, navigate] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
-
-  const featuredListings: any[] = [];
-  const isLoading = false;
 
   const handleSearch = () => {
     const params = new URLSearchParams();
@@ -80,7 +75,7 @@ export default function Home() {
     {
       icon: MapPin,
       title: "Interactive Map Search",
-      description: "Explore properties on an interactive Google Maps view with neighborhood boundaries and directions.",
+      description: "Explore properties on an interactive map view with neighborhood boundaries and directions.",
       color: "text-red-500",
       bg: "bg-red-50",
     },
@@ -130,7 +125,7 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Section */}
+      {/* Hero */}
       <section className="hero-gradient text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-5">
           <div className="absolute inset-0" style={{
@@ -169,10 +164,7 @@ export default function Home() {
                 onKeyDown={e => e.key === "Enter" && handleSearch()}
                 className="flex-1 px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/50 border border-white/20 focus:outline-none focus:ring-2 focus:ring-accent text-sm"
               />
-              <Button
-                onClick={handleSearch}
-                className="bg-accent text-accent-foreground hover:bg-accent/90 px-6 py-3 rounded-xl font-semibold"
-              >
+              <Button onClick={handleSearch} className="bg-accent text-accent-foreground hover:bg-accent/90 px-6 py-3 rounded-xl font-semibold">
                 <Search className="w-4 h-4 mr-2" />
                 Search
               </Button>
@@ -184,8 +176,7 @@ export default function Home() {
                   onClick={() => navigate(`/listings?city=${city}`)}
                   className="text-sm text-white/70 hover:text-accent transition-colors flex items-center gap-1"
                 >
-                  <MapPin className="w-3 h-3" />
-                  {city}
+                  <MapPin className="w-3 h-3" />{city}
                 </button>
               ))}
             </div>
@@ -240,7 +231,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Listings */}
+      {/* Featured Listings placeholder */}
       <section className="py-16 bg-background">
         <div className="container">
           <div className="flex items-end justify-between mb-10">
@@ -248,44 +239,16 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">Featured Properties</h2>
               <p className="text-muted-foreground">Hand-picked premium listings across Nigeria</p>
             </div>
-            <Button variant="ghost" onClick={() => navigate("/listings?featured=true")} className="hidden md:flex items-center gap-1 text-primary">
+            <Button variant="ghost" onClick={() => navigate("/listings")} className="hidden md:flex items-center gap-1 text-primary">
               View All <ChevronRight className="w-4 h-4" />
             </Button>
           </div>
-
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden border border-border">
-                  <div className="skeleton h-48 w-full" />
-                  <div className="p-4 space-y-3">
-                    <div className="skeleton h-4 w-3/4 rounded" />
-                    <div className="skeleton h-4 w-1/2 rounded" />
-                    <div className="skeleton h-6 w-1/3 rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : featuredListings.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredListings.map((listing: any) => (
-                <ListingCard key={listing.id} listing={listing} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 text-muted-foreground">
-              <Building2 className="w-16 h-16 mx-auto mb-4 opacity-30" />
-              <p className="text-lg font-medium">No featured listings yet</p>
-              <p className="text-sm mt-1">Be the first to post a property!</p>
-              <Button className="mt-4" onClick={() => navigate("/dashboard/listings/new")}>
-                Post a Listing
-              </Button>
-            </div>
-          )}
-
-          <div className="text-center mt-8 md:hidden">
-            <Button variant="outline" onClick={() => navigate("/listings")} className="gap-2">
-              View All Listings <ArrowRight className="w-4 h-4" />
+          <div className="text-center py-20 text-muted-foreground">
+            <Building2 className="w-16 h-16 mx-auto mb-4 opacity-30" />
+            <p className="text-lg font-medium">No featured listings yet</p>
+            <p className="text-sm mt-1">Be the first to post a property!</p>
+            <Button className="mt-4" onClick={() => navigate(isAuthenticated ? "/dashboard/listings/new" : "/register")}>
+              {isAuthenticated ? "Post a Listing" : "Get Started Free"}
             </Button>
           </div>
         </div>
@@ -385,21 +348,12 @@ export default function Home() {
             Join over 45,000 Nigerians who trust Homvera NG for their property needs.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-8"
-              onClick={() => navigate("/listings")}
-            >
+            <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90 font-semibold px-8" onClick={() => navigate("/listings")}>
               Browse Listings <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
             {!isAuthenticated && (
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-white/30 text-white hover:bg-white/10 px-8"
-                asChild
-              >
-                <a href={getLoginUrl()}>Create Free Account</a>
+              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 px-8" onClick={() => navigate("/register")}>
+                Create Free Account
               </Button>
             )}
           </div>
