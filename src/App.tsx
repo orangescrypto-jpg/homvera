@@ -3,23 +3,19 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-
-// Components
+import { AuthProvider } from "./contexts/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
 import ChatbotWidget from "./components/ChatbotWidget";
-
-// Public pages
 import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Listings from "./pages/Listings";
 import ListingDetail from "./pages/ListingDetail";
 import NotFound from "./pages/NotFound";
-
-// Legal pages
 import TermsOfService from "./pages/legal/TermsOfService";
 import PrivacyPolicy from "./pages/legal/PrivacyPolicy";
 import EscrowAgreement from "./pages/legal/EscrowAgreement";
 import CookiePolicy from "./pages/legal/CookiePolicy";
-
-// Dashboard pages
 import Dashboard from "./pages/dashboard/Dashboard";
 import Profile from "./pages/dashboard/Profile";
 import SavedListings from "./pages/dashboard/SavedListings";
@@ -27,14 +23,8 @@ import MyBookings from "./pages/dashboard/MyBookings";
 import Notifications from "./pages/dashboard/Notifications";
 import MyListings from "./pages/dashboard/MyListings";
 import CreateListing from "./pages/dashboard/CreateListing";
-
-// Chat
 import Messages from "./pages/Messages";
-
-// Escrow
 import EscrowPage from "./pages/EscrowPage";
-
-// Admin
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminListings from "./pages/admin/AdminListings";
@@ -44,40 +34,131 @@ import AdminVerifications from "./pages/admin/AdminVerifications";
 function Router() {
   return (
     <Switch>
-      {/* Public */}
+      {/* Public Routes */}
       <Route path="/" component={Home} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
       <Route path="/listings" component={Listings} />
       <Route path="/listings/:id" component={ListingDetail} />
-
-      {/* Legal */}
       <Route path="/terms" component={TermsOfService} />
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/escrow-agreement" component={EscrowAgreement} />
       <Route path="/cookies" component={CookiePolicy} />
 
-      {/* Dashboard */}
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/dashboard/profile" component={Profile} />
-      <Route path="/dashboard/saved" component={SavedListings} />
-      <Route path="/dashboard/bookings" component={MyBookings} />
-      <Route path="/dashboard/notifications" component={Notifications} />
-      <Route path="/dashboard/listings" component={MyListings} />
-      <Route path="/dashboard/listings/new" component={CreateListing} />
+      {/* Protected Dashboard Routes */}
+      <Route path="/dashboard">
+        {() => (
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/dashboard/profile">
+        {() => (
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/dashboard/saved">
+        {() => (
+          <ProtectedRoute>
+            <SavedListings />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/dashboard/bookings">
+        {() => (
+          <ProtectedRoute>
+            <MyBookings />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/dashboard/notifications">
+        {() => (
+          <ProtectedRoute>
+            <Notifications />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/dashboard/listings">
+        {() => (
+          <ProtectedRoute>
+            <MyListings />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/dashboard/listings/new">
+        {() => (
+          <ProtectedRoute>
+            <CreateListing />
+          </ProtectedRoute>
+        )}
+      </Route>
 
-      {/* Chat */}
-      <Route path="/messages" component={Messages} />
-      <Route path="/messages/:conversationId" component={Messages} />
+      {/* Protected Messages */}
+      <Route path="/messages">
+        {() => (
+          <ProtectedRoute>
+            <Messages />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/messages/:conversationId">
+        {() => (
+          <ProtectedRoute>
+            <Messages />
+          </ProtectedRoute>
+        )}
+      </Route>
 
-      {/* Escrow */}
-      <Route path="/escrow/:bookingId" component={EscrowPage} />
+      {/* Protected Escrow */}
+      <Route path="/escrow/:bookingId">
+        {() => (
+          <ProtectedRoute>
+            <EscrowPage />
+          </ProtectedRoute>
+        )}
+      </Route>
 
-      {/* Admin */}
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/users" component={AdminUsers} />
-      <Route path="/admin/listings" component={AdminListings} />
-      <Route path="/admin/escrows" component={AdminEscrows} />
-      <Route path="/admin/verifications" component={AdminVerifications} />
+      {/* Admin Routes (Protected + Role Check) */}
+      <Route path="/admin">
+        {() => (
+          <ProtectedRoute requiredRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/users">
+        {() => (
+          <ProtectedRoute requiredRole="admin">
+            <AdminUsers />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/listings">
+        {() => (
+          <ProtectedRoute requiredRole="admin">
+            <AdminListings />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/escrows">
+        {() => (
+          <ProtectedRoute requiredRole="admin">
+            <AdminEscrows />
+          </ProtectedRoute>
+        )}
+      </Route>
+      <Route path="/admin/verifications">
+        {() => (
+          <ProtectedRoute requiredRole="admin">
+            <AdminVerifications />
+          </ProtectedRoute>
+        )}
+      </Route>
 
+      {/* 404 */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -87,11 +168,13 @@ function App() {
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
-        <TooltipProvider>
-          <Toaster richColors position="top-right" />
-          <Router />
-          <ChatbotWidget />
-        </TooltipProvider>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster richColors position="top-right" />
+            <Router />
+            <ChatbotWidget />
+          </TooltipProvider>
+        </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
