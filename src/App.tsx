@@ -4,7 +4,6 @@ import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider } from "./contexts/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
 import ChatbotWidget from "./components/ChatbotWidget";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -34,7 +33,6 @@ import AdminVerifications from "./pages/admin/AdminVerifications";
 function Router() {
   return (
     <Switch>
-      {/* Public Routes */}
       <Route path="/" component={Home} />
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
@@ -44,121 +42,21 @@ function Router() {
       <Route path="/privacy" component={PrivacyPolicy} />
       <Route path="/escrow-agreement" component={EscrowAgreement} />
       <Route path="/cookies" component={CookiePolicy} />
-
-      {/* Protected Dashboard Routes */}
-      <Route path="/dashboard">
-        {() => (
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/dashboard/profile">
-        {() => (
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/dashboard/saved">
-        {() => (
-          <ProtectedRoute>
-            <SavedListings />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/dashboard/bookings">
-        {() => (
-          <ProtectedRoute>
-            <MyBookings />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/dashboard/notifications">
-        {() => (
-          <ProtectedRoute>
-            <Notifications />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/dashboard/listings">
-        {() => (
-          <ProtectedRoute>
-            <MyListings />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/dashboard/listings/new">
-        {() => (
-          <ProtectedRoute>
-            <CreateListing />
-          </ProtectedRoute>
-        )}
-      </Route>
-
-      {/* Protected Messages */}
-      <Route path="/messages">
-        {() => (
-          <ProtectedRoute>
-            <Messages />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/messages/:conversationId">
-        {() => (
-          <ProtectedRoute>
-            <Messages />
-          </ProtectedRoute>
-        )}
-      </Route>
-
-      {/* Protected Escrow */}
-      <Route path="/escrow/:bookingId">
-        {() => (
-          <ProtectedRoute>
-            <EscrowPage />
-          </ProtectedRoute>
-        )}
-      </Route>
-
-      {/* Admin Routes (Protected + Role Check) */}
-      <Route path="/admin">
-        {() => (
-          <ProtectedRoute requiredRole="admin">
-            <AdminDashboard />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/admin/users">
-        {() => (
-          <ProtectedRoute requiredRole="admin">
-            <AdminUsers />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/admin/listings">
-        {() => (
-          <ProtectedRoute requiredRole="admin">
-            <AdminListings />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/admin/escrows">
-        {() => (
-          <ProtectedRoute requiredRole="admin">
-            <AdminEscrows />
-          </ProtectedRoute>
-        )}
-      </Route>
-      <Route path="/admin/verifications">
-        {() => (
-          <ProtectedRoute requiredRole="admin">
-            <AdminVerifications />
-          </ProtectedRoute>
-        )}
-      </Route>
-
-      {/* 404 */}
+      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard/profile" component={Profile} />
+      <Route path="/dashboard/saved" component={SavedListings} />
+      <Route path="/dashboard/bookings" component={MyBookings} />
+      <Route path="/dashboard/notifications" component={Notifications} />
+      <Route path="/dashboard/listings" component={MyListings} />
+      <Route path="/dashboard/listings/new" component={CreateListing} />
+      <Route path="/messages" component={Messages} />
+      <Route path="/messages/:conversationId" component={Messages} />
+      <Route path="/escrow/:bookingId" component={EscrowPage} />
+      <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/listings" component={AdminListings} />
+      <Route path="/admin/escrows" component={AdminEscrows} />
+      <Route path="/admin/verifications" component={AdminVerifications} />
       <Route component={NotFound} />
     </Switch>
   );
